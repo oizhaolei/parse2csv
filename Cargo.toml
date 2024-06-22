@@ -1,0 +1,22 @@
+[package]
+name = "parse2csv"
+authors = [ "lei.zhao <oizhaolei@gmail.com>" ]
+version = "0.2.0"
+edition = "2021"
+description = "parse log-file and output to stdout as csv file by regex"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/oizhaolei/parse2csv"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+clap = { version = "4.5.7", features = ["derive"] }
+csv = "1.3.0"
+regex = "1.10.5"
+
+[package.metadata.rpm.cargo]
+buildflags = ["--release"]
+target = "x86_64-unknown-linux-musl"
+
+[package.metadata.rpm.targets]
+parse2csv = { path = "/usr/bin/parse2csv" }
