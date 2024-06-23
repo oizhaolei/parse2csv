@@ -1,7 +1,8 @@
-use std::fs::File;
-use std::io::{ self, BufReader, BufRead};
 use regex::Regex;
-
+use std::fs::File;
+use std::fs::OpenOptions;
+use std::io::prelude::*;
+use std::io::{self, BufRead, BufReader};
 
 use clap::Parser;
 
@@ -14,56 +15,76 @@ struct Args {
     regex: String,
 
     /// Number of times to greet
-    #[arg(short, long )]
-    inputfile: String,
+    #[arg(short, long)]
+    input: String,
+}
+
+fn get_all_capture_captions(text: &str) -> Vec<String> {
+    let re_capture = Regex::new("\\?<([^>]+)>").unwrap();
+
+    // Create a vector to store all captures
+    let mut captures = Vec::new();
+
+    // Iterate over all matches and collect captures
+    for cap in re_capture.captures_iter(text) {
+        for i in 1..cap.len() {
+            if let Some(m) = cap.get(i) {
+                captures.push(m.as_str().to_string());
+            }
+        }
+    }
+    captures
+}
+
+fn escape_quotes(input: &str) -> String {
+    input.replace("\"", "\\\"")
 }
 
 /// usage:
-/// access_log_parser --inputfile ./out/xxxxx.mail.com --regex "^(?<ip>\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}) - - \[(\S+ \+\d{4})\] \"(?<method>GET|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH) (\S+) (\S+)\" (\d{3}) (\S+) \"(\S+)\" \"([^\"]+)\" \"(\S+)\""
+/// access_log_parser --inputfile ./out/xxxxx.mail.com --regex "^(?<ip>\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}) - - \[(?<date>\S+ \+\d{4})\] \"(?<method>GET|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH) (?<path>\S+) (?<version>\S+)\" (?<code>\d{3}) (?<rt>\S+) \"(?<referer>\S+)\" \"(?<ua>[^\"]+)\" \"(\S+)\""
 fn main() -> io::Result<()> {
-        let args = Args::parse();
+    let args = Args::parse();
     let re = Regex::new(&args.regex).unwrap();
 
+    let captions = get_all_capture_captions(&args.regex);
+
     // Open the file in read-only mode
-    let file = File::open(args.inputfile)?;
+    let input = File::open(&args.input)?;
+
+    let output_filename = format!("{}.csv", &args.input);
+    let mut output = OpenOptions::new()
+        .write(true)
+        .create(true)
+        .open(&output_filename)
+        .unwrap();
+
+    // write csv header
+    if let Err(e) = writeln!(output, "\"{}\"", captions.join("\",\"")) {
+        eprintln!("Couldn't write to file: {}", e);
+    }
 
     // Create a buffered reader for the file
-    let reader = BufReader::new(file);
+    let reader = BufReader::new(input);
 
     // Read the file line by line
     for line in reader.lines() {
         // Handle any errors that may occur while reading a line
         let line = line?;
         let Some(caps) = re.captures(&line) else {
+            eprintln!("ignored: {}", &line);
             continue;
         };
-        let filename = &caps["method"];
-        println!("method: {}", filename);
-
-        // Process the line (for example, print it)
-        // println!("{}", line);
+        let fields = captions
+            .iter()
+            .map(|c| escape_quotes(&caps[c.as_str()]))
+            .collect::<Vec<_>>()
+            .join("\",\"");
+        // write csv line
+        if let Err(e) = writeln!(output, "\"{}\"", fields) {
+            eprintln!("Couldn't write to file: {}", e);
+        }
     }
+    println!("write {} to {}", &args.input, &output_filename);
 
     Ok(())
-
-    // let re_filename = Regex::new(r"/").unwrap();
-    // let stdin = io::stdin();
-    // for line in stdin.lock().lines() {
-    //     let l = line.unwrap();
-    //     let Some(caps) = re.captures(&l) else {
-    //         continue;
-    //     };
-    //     let filename = &caps["filename"];
-    //     println!("filename: {}", filename);
-    //     let mut file = OpenOptions::new()
-    //         .write(true)
-    //         .append(true)
-    //         .create(true)
-    //         .open(format!("out/{}",re_filename.replace_all( filename,"_")))
-    //         .unwrap();
-
-    //     if let Err(e) = writeln!(file, "{}", &l) {
-    //         eprintln!("Couldn't write to file: {}", e);
-    //     }
-    // }
 }
