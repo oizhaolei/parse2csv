@@ -17,4 +17,4 @@ buildflags = ["--release"]
 target = "x86_64-unknown-linux-musl"
 
 [package.metadata.rpm.targets]
-pipeline_dispatch = { path = "/usr/bin/pipeline_dispatch" }
+access_log_parser = { path = "/usr/bin/access_log_parser" }
