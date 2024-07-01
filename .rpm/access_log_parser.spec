@@ -3,7 +3,7 @@
 %define debug_package %{nil}
 
 Name: access_log_parser
-Summary: A modern replacement for ps
+Summary: parse access-log-file export to csv file by regex
 Version: @@VERSION@@
 Release: @@RELEASE@@
 License: MIT
