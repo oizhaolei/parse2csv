@@ -84,7 +84,7 @@ fn main() -> io::Result<()> {
             eprintln!("Couldn't write to file: {}", e);
         }
     }
-    println!("write {} to {}", &args.input, &output_filename);
+    println!("read from {}, write to {}", &args.input, &output_filename);
 
     Ok(())
 }
