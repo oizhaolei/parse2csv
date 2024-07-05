@@ -30,6 +30,6 @@ if [ -z "$input" ]; then
 fi
 
 # Read from input file, parse with regex, and write to the csv file
-regex="^(?<ip>\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}) - - \[(?<date>\S+ \+\d{4})\] \"(?<method>GET|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH) (?<path>\S+) (?<version>\S+)\" (?<code>\d{3}) (?<rt>\S+) \"(?<referer>\S+)\" \"(?<ua>[^\"]+)\" \"(\S+)\""
+regex="(?<syslog_time>.{26}) (?<cip>\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}) (?<cs_username>[^ ]+) (?<req_method>GET|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH) (?<remote_host>[^ ]+) (?<s_ip>[^ ]+) (?<s_port>[^ ]+) (?<resp_code>\d{3}) (?<result_code>[^ ]+) (?<req_size>\d+) (?<resp_size>\d+) (?<resp_time>\d+) (?<hierarchy_status>[^\n]+).*"
 
-target/debug/access_log_parser --regex "$regex" --input "$input"
+access_log_parser --regex "$regex" --input "$input"
