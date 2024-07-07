@@ -1,7 +1,7 @@
 # リリース
 
 - access log parser
-- read `squid | zscaler` access log file, parse line by line, export to new csv file.
+- Read the squid | zscaler access log file, parse it line by line, and export the data to a new CSV file.
 
 ## 実行方法
 
