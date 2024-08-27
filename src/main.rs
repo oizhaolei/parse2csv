@@ -1,4 +1,5 @@
 use regex::Regex;
+use std::fs::remove_file;
 use std::fs::File;
 use std::fs::OpenOptions;
 use std::io::prelude::*;
@@ -57,6 +58,12 @@ fn main() -> io::Result<()> {
         .create(true)
         .open(&output_filename)
         .unwrap();
+    let err_filename = format!("{}.err", &args.input);
+    let mut errput = OpenOptions::new()
+        .write(true)
+        .create(true)
+        .open(&err_filename)
+        .unwrap();
 
     // write csv header
     if let Err(e) = writeln!(output, "\"{}\"", columns.join("\",\"")) {
@@ -66,25 +73,36 @@ fn main() -> io::Result<()> {
     // Create a buffered reader for the file
     let reader = BufReader::new(input);
 
+    let mut has_err = false;
     // Read the file line by line
     for line in reader.lines() {
         // Handle any errors that may occur while reading a line
         let line = line?;
         let Some(caps) = re.captures(&line) else {
-            eprintln!("ignored: {}", &line);
+            // parse error: write to err file
+            has_err = true;
+            if let Err(e) = writeln!(errput, "\"{}\"", &line) {
+                eprintln!("Couldn't write to file: {}", e);
+            }
             continue;
         };
-        let fields = columns
+        let csv_line = columns
             .iter()
             .map(|col| escape_quotes(&caps[col.as_str()]))
             .collect::<Vec<_>>()
             .join("\",\"");
         // write csv line
-        if let Err(e) = writeln!(output, "\"{}\"", fields) {
+        if let Err(e) = writeln!(output, "\"{}\"", csv_line) {
             eprintln!("Couldn't write to file: {}", e);
         }
     }
     println!("read from {}, write to {}", &args.input, &output_filename);
+    if has_err {
+        println!("write err to {}", &err_filename);
+    } else {
+        //delete err file
+        remove_file(&err_filename)?;
+    }
 
     Ok(())
 }
