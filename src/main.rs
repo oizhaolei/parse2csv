@@ -37,8 +37,8 @@ fn get_all_capture_captions(text: &str) -> Vec<String> {
     captures
 }
 
-fn escape_quotes(input: &str) -> String {
-    input.replace("\"", "\\\"")
+fn escape_field(input: &str) -> String {
+    input.replace('"', r#""""#)
 }
 
 /// usage:
@@ -88,7 +88,7 @@ fn main() -> io::Result<()> {
         };
         let csv_line = columns
             .iter()
-            .map(|col| escape_quotes(&caps[col.as_str()]))
+            .map(|col| escape_field(&caps[col.as_str()]))
             .collect::<Vec<_>>()
             .join("\",\"");
         // write csv line
@@ -109,12 +109,12 @@ fn main() -> io::Result<()> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{escape_quotes, get_all_capture_captions};
+    use crate::{escape_field, get_all_capture_captions};
     #[test]
     fn test_escape_quotes() {
-        assert_eq!(escape_quotes(""), "");
-        assert_eq!(escape_quotes("\""), "\\\"");
-        assert_eq!(escape_quotes("\"123\""), "\\\"123\\\"");
+        assert_eq!(escape_field(""), "");
+        assert_eq!(escape_field("\""), "\\\"");
+        assert_eq!(escape_field("\"123\""), "\\\"123\\\"");
     }
 
     #[test]
