@@ -113,8 +113,8 @@ mod tests {
     #[test]
     fn test_escape_quotes() {
         assert_eq!(escape_field(""), "");
-        assert_eq!(escape_field("\""), "\\\"");
-        assert_eq!(escape_field("\"123\""), "\\\"123\\\"");
+        assert_eq!(escape_field("\""), "\"\"");
+        assert_eq!(escape_field("\"123\""), "\"\"123\"\"");
     }
 
     #[test]
