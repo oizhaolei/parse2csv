@@ -52,12 +52,21 @@ fn main() -> io::Result<()> {
     // Open the file in read-only mode
     let input = File::open(&args.input)?;
 
+    // Create a buffered reader for the file
+    let reader = BufReader::new(input);
+
+    //output file
     let output_filename = format!("{}.csv", &args.input);
-    let mut output = OpenOptions::new()
+    let output = OpenOptions::new()
         .write(true)
         .create(true)
         .open(&output_filename)
         .unwrap();
+    let mut wtr = csv::WriterBuilder::new()
+        .delimiter(b',')
+        .quote_style(csv::QuoteStyle::Always)
+        .from_writer(output);
+    //err file
     let err_filename = format!("{}.err", &args.input);
     let mut errput = OpenOptions::new()
         .write(true)
@@ -66,12 +75,7 @@ fn main() -> io::Result<()> {
         .unwrap();
 
     // write csv header
-    if let Err(e) = writeln!(output, "\"{}\"", columns.join("\",\"")) {
-        eprintln!("Couldn't write to file: {}", e);
-    }
-
-    // Create a buffered reader for the file
-    let reader = BufReader::new(input);
+    wtr.write_record(&columns)?;
 
     let mut has_err = false;
     // Read the file line by line
@@ -89,12 +93,9 @@ fn main() -> io::Result<()> {
         let csv_line = columns
             .iter()
             .map(|col| escape_field(&caps[col.as_str()]))
-            .collect::<Vec<_>>()
-            .join("\",\"");
+            .collect::<Vec<_>>();
         // write csv line
-        if let Err(e) = writeln!(output, "\"{}\"", csv_line) {
-            eprintln!("Couldn't write to file: {}", e);
-        }
+        wtr.write_record(&csv_line)?;
     }
     println!("read from {}, write to {}", &args.input, &output_filename);
     if has_err {
