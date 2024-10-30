@@ -1,9 +1,8 @@
 use regex::Regex;
 use std::fs::remove_file;
-use std::fs::File;
 use std::fs::OpenOptions;
 use std::io::prelude::*;
-use std::io::{self, BufRead, BufReader};
+use std::io::{self, BufRead};
 
 use clap::Parser;
 
@@ -13,10 +12,6 @@ struct Args {
     /// regex for parse
     #[arg(short, long)]
     regex: String,
-
-    /// input file, new file named `${input}.csv` will be generated
-    #[arg(short, long)]
-    input: String,
 }
 
 // parse regex string, get capture list
@@ -49,29 +44,19 @@ fn main() -> io::Result<()> {
 
     let columns = get_all_capture_captions(&args.regex);
 
-    // Open the file in read-only mode
-    let input = File::open(&args.input)?;
+    let stdin = io::stdin();
 
-    // Create a buffered reader for the file
-    let reader = BufReader::new(input);
-
-    //output file
-    let output_filename = format!("{}.csv", &args.input);
-    let output = OpenOptions::new()
-        .write(true)
-        .create(true)
-        .open(&output_filename)
-        .unwrap();
+    //output
     let mut wtr = csv::WriterBuilder::new()
         .delimiter(b',')
         .quote_style(csv::QuoteStyle::Always)
-        .from_writer(output);
+        .from_writer(io::stdout());
     //err file
-    let err_filename = format!("{}.err", &args.input);
+    let err_filename = "__.err";
     let mut errput = OpenOptions::new()
-        .write(true)
         .create(true)
-        .open(&err_filename)
+        .append(true)
+        .open(err_filename)
         .unwrap();
 
     // write csv header
@@ -79,7 +64,7 @@ fn main() -> io::Result<()> {
 
     let mut has_err = false;
     // Read the file line by line
-    for line in reader.lines() {
+    for line in stdin.lock().lines() {
         // Handle any errors that may occur while reading a line
         let line = line?;
         let Some(caps) = re.captures(&line) else {
@@ -97,12 +82,11 @@ fn main() -> io::Result<()> {
         // write csv line
         wtr.write_record(&csv_line)?;
     }
-    println!("read from {}, write to {}", &args.input, &output_filename);
     if has_err {
-        println!("write err to {}", &err_filename);
+        println!("write err to {}", err_filename);
     } else {
         //delete err file
-        remove_file(&err_filename)?;
+        remove_file(err_filename)?;
     }
 
     Ok(())

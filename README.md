@@ -1,19 +1,16 @@
-# リリース
+# What
 
-- access log parser
-- Read the squid | zscaler access log file, parse it line by line, and export the data to a new CSV file.
+- convert log data or fixed format file to csv
+- Read the log data from stdin, parse it line by line with a regex string, export the data to stdout as CSV format
 
-## 実行方法
+## Usage
 
 ```shell
-./access_log_parser --input ./out/xxxxx.mail.com --regex "^(?<ip>\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}) - - \[(?<date>\S+ \+\d{4})\] \"(?<method>GET|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH) (?<path>\S+) (?<version>\S+)\" (?<code>\d{3}) (?<rt>\S+) \"(?<referer>\S+)\" \"(?<ua>[^\"]+)\" \"(\S+)\""
+stdin | ./parse2csv --regex "^(?<ip>\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}) - - \[(?<date>\S+ \+\d{4})\] \"(?<method>GET|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH) (?<path>\S+) (?<version>\S+)\" (?<code>\d{3}) (?<rt>\S+) \"(?<referer>\S+)\" \"(?<ua>[^\"]+)\" \"(\S+)\""
 ```
-new csv file should named with `./out/xxxxx.mail.com.csv`
 
 
-## デモ
-
-### access.log
+- `cat access.log`
 
 ``` text
 94.102.51.144 - - [14/Jun/2024:02:34:17 +0800] "POST /wp-json/wpgmzA/v1/markers?_method=get&random=/wpgmza/v1/markers/10 HTTP/1.1" 301 169 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3" "-"
@@ -23,15 +20,15 @@ new csv file should named with `./out/xxxxx.mail.com.csv`
 185.254.196.173 - - [14/Jun/2024:03:19:16 +0800] "GET /.env HTTP/1.1" 404 555 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.129 Safari/537.36" "-"
 ```
 
-
-### 実行
+- run
 
 ``` shell
-./access_log_parser --input ./demo/access.log --regex "^(?<ip>\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}) - - \[(?<date>\S+ \+\d{4})\] \"(?<method>GET|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH) (?<path>\S+) (?<version>\S+)\" (?<code>\d{3}) (?<rt>\S+) \"(?<referer>\S+)\" \"(?<ua>[^\"]+)\" \"(\S+)\""
+cat access.log | ./parse2csv --regex "^(?<ip>\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}) - - \[(?<date>\S+ \+\d{4})\] \"(?<method>GET|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH) (?<path>\S+) (?<version>\S+)\" (?<code>\d{3}) (?<rt>\S+) \"(?<referer>\S+)\" \"(?<ua>[^\"]+)\" \"(\S+)\""
 ```
 
+- The stdout shoud be:
+
 ``` shell
-# cat demo/access.log.csv 
 "ip","date","method","path","version","code","rt","referer","ua"
 "94.102.51.144","14/Jun/2024:02:34:17 +0800","POST","/wp-json/wpgmzA/v1/markers?_method=get&random=/wpgmza/v1/markers/10","HTTP/1.1","301","169","-","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
 "91.204.46.40","14/Jun/2024:03:00:42 +0800","GET","/wp-json/wp/v2/users","HTTP/1.1","301","169","-","Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/21.0.1180.83 Safari/537.1"

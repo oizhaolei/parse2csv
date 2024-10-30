@@ -32,4 +32,4 @@ fi
 # Read from input file, parse with regex, and write to the csv file
 regex="(?<syslog_time>.{26}) (?<cip>\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}) (?<cs_username>[^ ]+) (?<req_method>GET|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH|NA|PROPFIND) (?<remote_host>[^ ]+) (?<s_ip>[^ ]+) (?<s_port>[^ ]+) (?<resp_code>[^ ]+) (?<result_code>[^ ]+) (?<req_size>\d+) (?<resp_size>\d+) (?<resp_time>\d+) (?<hierarchy_status>[^\n]+).*"
 
-access_log_parser --regex "$regex" --input "$input"
+parse2csv --regex "$regex" --input "$input"

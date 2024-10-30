@@ -33,5 +33,5 @@ if "%input%"=="" (
 REM Read from input file, parse with regex, and write to the csv file
 set "regex=(.{15}) (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) \"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\",\"([^\"]+)\",\"(.{24})\",\"(GET|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH|NA)\",\"([^\"]+)\",\"([^\"]+)\",\"([^\"]+)\",\"(\d+)\",\"(\d+)\",\"([^\"]+)\",\"([^\"]+)\",\"(\d+)\",\"([^\"]+)\",\"([^\"]+)\",\"([^\"]+)\",\"([^\"]+)\",\"([^\"]+)\",\"([^\"]+)\".*"
 
-REM Replace `access_log_parser` with the equivalent tool or command in Windows
-access_log_parser --regex "%regex%" --input "%input%"
+REM Replace `parse2csv` with the equivalent tool or command in Windows
+parse2csv --regex "%regex%" --input "%input%"

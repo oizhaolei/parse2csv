@@ -2,8 +2,8 @@
 %define __os_install_post %{_dbpath}/brp-compress
 %define debug_package %{nil}
 
-Name: access_log_parser
-Summary: parse access-log-file export to csv file by regex
+Name: parse2csv
+Summary: parse log-file and output to stdout as csv file by regex
 Version: @@VERSION@@
 Release: @@RELEASE@@
 License: MIT

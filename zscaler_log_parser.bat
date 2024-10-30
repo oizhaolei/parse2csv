@@ -33,5 +33,5 @@ if "%input%"=="" (
 REM Read from input file, parse with regex, and write to the csv file
 set "regex=(?<syslog_time>.{26}) (?<cip>\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}) (?<cs_username>[^ ]+) (?<req_method>GET|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH|NA|PROPFIND) (?<remote_host>[^ ]+) (?<s_ip>[^ ]+) (?<s_port>[^ ]+) (?<resp_code>[^ ]+) (?<result_code>[^ ]+) (?<req_size>\d+) (?<resp_size>\d+) (?<resp_time>\d+) (?<hierarchy_status>[^\n]+).*"
 
-REM Replace `access_log_parser` with the equivalent tool or command in Windows
-access_log_parser --regex "%regex%" --input "%input%"
+REM Replace `parse2csv` with the equivalent tool or command in Windows
+parse2csv --regex "%regex%" --input "%input%"
